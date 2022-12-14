@@ -49,7 +49,7 @@ namespace FirstProgram
     internal class Program
     {
         // Main 함수
-        // 함수 형태
+        // 함수 형태 :
         // 반환형 함수이름(매개변수1타입 매개변수1이름, 매개변수2타입, 매개변수2이름 ...)
         //{
         //      함수 연산
