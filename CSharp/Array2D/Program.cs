@@ -13,6 +13,7 @@ namespace Array2D
             // 객체 자기자신 참조 키워드
             public void SetPos(int x, int y) //이걸 스택영역에 쌓으려면 코드영역에 있는 SetPos를 복제해서 스택영역에 쌓는것이다.
             {
+                map[_y, _x] = mapOrigin[_y, _x];    //이전 위치 롤백
                 this._x = x;
                 this._y = y;
                 Program.map[y, x] = 5;
@@ -52,7 +53,7 @@ namespace Array2D
             public void MoveRight()
             {
                 //움직이면 맵의 경계를 벗어나는지 체크
-                if (_y >= map.GetLength(1) - 1)
+                if (_x >= map.GetLength(1) - 1)
                 {
                     return;
                 }
@@ -98,48 +99,83 @@ namespace Array2D
             {1,1,0,1,1 },
             {1,1,0,0,2 },
         };
+        static int[,] mapOrigin = new int[5, 5]
+        {
+            {0,1,1,1,1 },
+            {0,1,1,1,1 },
+            {0,0,0,1,1 },
+            {1,1,0,1,1 },
+            {1,1,0,0,2 },
+        };
 
         static void Main(string[] args)
         {
             Player player = new Player();
             player.SetPos(0, 0);
 
-
-            int move_x = 0, move_y = 0;
-
-            while (true)
+            string userInput = string.Empty;
+            while (map[4, 4] != 5)
             {
-                Console.WriteLine("Enter a number Pos 'a', 's', 'd', 'w' : ");
-                char move = char.Parse(Console.ReadLine());
-                Console.WriteLine("You entered : ", move);
-
-                if(move == 'a')
+                userInput = Console.ReadLine();
+                if (userInput == "L")
                 {
-                    move_x--;
-                    map[move_y, move_x] = 5;
-                    
+                    player.MoveLeft();
                 }
-                else if(move == 's')
+                else if (userInput == "R")
                 {
-                    move_y++;
-                    map[move_y, move_x] = 5;
+                    player.MoveRight();
                 }
-                else if (move == 'd')
+                else if (userInput == "U")
                 {
-                    move_x++;
-                    map[move_y, move_x] = 5;
+                    player.MoveUp();
                 }
-                else if (move == 'w')
+                else if (userInput == "D")
                 {
-                    move_y--;
-                    map[move_y, move_x] = 5;
+                    player.MoveDown();
                 }
-                else
-                {
-                    Console.WriteLine("Nothing");
-                }
-                DisplayMap();
             }
+
+
+
+            //int move_x = 0, move_y = 0;
+
+            //while (map[4, 4] != 5)
+            //{
+            //    Console.WriteLine("Enter a number Pos 'a', 's', 'd', 'w' : ");
+            //    char move = char.Parse(Console.ReadLine());
+            //    Console.WriteLine("You entered : ", move);
+
+                
+            //        map[move_y, move_x] = mapOrigin[move_y, move_x];
+            //        if (move == 'a')
+            //        {
+            //            move_x--;
+            //            map[move_y, move_x] = 5;
+
+            //        }
+            //        else if (move == 's')
+            //        {
+            //            move_y++;
+            //            map[move_y, move_x] = 5;
+            //        }
+            //        else if (move == 'd')
+            //        {
+            //            move_x++;
+            //            map[move_y, move_x] = 5;
+            //        }
+            //        else if (move == 'w')
+            //        {
+            //            move_y--;
+            //            map[move_y, move_x] = 5;
+            //        }
+            //        else
+            //        {
+            //            Console.WriteLine("Nothing");
+            //        }
+            //        DisplayMap();
+
+                
+            //}
 
 
         }
