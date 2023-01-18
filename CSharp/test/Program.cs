@@ -1,130 +1,244 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
+using System.Xml.Linq;
 
-// 진행 방식
-//  
-// 말 클래스 필요
-// 말 클래스는 달린거리, 이동하기 (달리기) 라는 함수를 가집니다.
-// 
-// 프로그램 시작시
-// 말 다섯마리 만들고
-// 각 말은 초당 10 ~ 20 (정수형) 범위의 거리를 랜덤하게 전진.
-// 각각의 말은 거리 200에 도달하면 도착해서 더이상 전진하지 않고
-// 매초 각 말들이 아직 달리고 있다면 달린 거리를, 도착했다면 도착 상태를 콘솔창에 출력 해줍니다.
-// 모든 말이 도착했다면 경주를 끝내고 등수 순서대로 말들의 이름을 콘솔창에 출력 해줍니다.
-namespace test
+namespace LinkedList
 {
     internal class Program
     {
-        public class Horse
-        {
-            public string Name;
-            public bool IsFinished = false;
-            public int TotalDistance;
-
-            public void Run(int distance)
-            {
-                TotalDistance += distance;
-                if(TotalDistance >= goalPos)
-                {
-                    Console.WriteLine($"{Name}은 도착지점에 도착하였습니다.");
-                }
-                else
-                {
-                    Console.WriteLine("이름: " + Name + " 달린 거리: " + TotalDistance);
-                }
-            }
-
-            public void SetIsFinished()
-            { 
-                IsFinished = true;
-            }
-
-            public void SetName(string _Name)
-            {
-                Name = _Name;
-            }
-
-        };
-
-        static Random random;
-        static int minSpeed = 10;
-        static int maxSpeed = 20;
-        static int goalPos = 200;
-        static int horse_count = 5;
-
-
         static void Main(string[] args)
         {
-            bool gameFinished = false;
-            int tempSpeed = 0;
-            int count = 0;
-            int[] goalCount = new int[horse_count];
-            //말 다섯마리 만들고
-            //이름 다 설정 해줌 (이름 패턴은 경주마1, 경주마2, 경주마3 ... )
-            Horse[] horse = new Horse[horse_count];
-            string[] horse_name = { "경주마1", "경주마2", "경주마3", "경주마4", "경주마5" };
-
-            Console.WriteLine("프로그램 시작");
-            Thread.Sleep(500);
-            Console.WriteLine("경주마 생성중...");
-            Thread.Sleep(1000);
-
-            for (int i = 0; i < horse_count; i++)
-            {
-                horse[i] = new Horse();
-                horse[i].SetName(horse_name[i]);
-                Console.Write($"{horse[i].Name}, ");
-                Thread.Sleep(500);
-            }
+            MyLinkedList<int> list = new MyLinkedList<int>();
+            list.AddLast(1);
+            list.AddLast(2);
+            list.AddLast(3);
+            list.AddLast(4);
 
 
-            Console.WriteLine();
-            Console.WriteLine("====================================================================");
-            while (gameFinished == false)
-            {
-                // 말 다섯마리 각각 아래처럼 랜덤한 스피드로 전진시키면서
-                // 각 말은 초당 10 ~ 20 (정수형) 범위의 거리를 랜덤하게 전진.
-                // 각각의 말은 거리 200에 도달하면 도착해서 더이상 전진하지 않고
-                // 매초 각 말들이 아직 달리고 있다면 달린 거리를, 도착했다면 도착 상태를 콘솔창에 출력 해줍니다.
-                // 모든 말이 도착했으면 게임 끝냄
-                for (int i = 0; i < horse_count; i++)
-                {
-                    tempSpeed = 0;
-
-                    if (horse[i].TotalDistance >= goalPos)
-                    {
-                        horse[i].Run(tempSpeed);
-                    }
-                    else
-                    {
-                        random = new Random();
-                        tempSpeed = random.Next(minSpeed, maxSpeed + 1);
-
-                        horse[i].Run(tempSpeed);
-                        if (horse[i].TotalDistance >= goalPos)
-                        {
-                            horse[i].SetIsFinished();
-                            goalCount[count] = i;
-                            count++;
-                        }
-                    }
-                }
-                Console.WriteLine("=====================================================================");
-                Thread.Sleep(1000);
-
-
-                if (count > 4)
-                {
-                    gameFinished = true;
-                }
-            }
-            // 각 말들을 등수 순서대로 이름을 출력해줌
-            for (int i = 0; i < horse_count; i++)
-            {
-                Console.WriteLine($"{i+1}등 : {horse[goalCount[i]].Name}");
-            }
+            Console.WriteLine(list.Last.Value);
+            Console.WriteLine(list.Last.Prev.Value);
 
         }
     }
+
+    internal class Node<T>
+    {
+        public T Value;
+        public Node<T> Next;
+        public Node<T> Prev;
+
+        public Node(T value)
+        {
+            Value = value;
+        }
+    }
+
+
+
+    internal class MyLinkedList<T>
+    {
+        //public Node<T> First
+        //{
+        //    get
+        //    {
+        //        return _first;
+        //    }
+        //}
+        public Node<T> First => _first;
+        public Node<T> Last => _last;
+
+        private Node<T> _first, _last, _tmp1, _tmp2;
+
+        public int Count
+        {
+            get
+            {
+                int count = 0;
+                _tmp1 = _first;
+                while (_tmp1 != null)
+                {
+                    count++;
+                    _tmp1 = _tmp1.Next;
+                }
+                return count;
+            }
+        }
+
+        //삽입 알고리즘
+        // O(1)
+        public void AddFirst(T value)
+        {
+            _tmp1 = new Node<T>(value);
+
+            //노드가 현재 하나이상 존재한다면
+            if (_first != null)
+            {
+                _tmp1.Next = _first;
+                _first.Prev = _tmp1;
+            }
+            // 노드가 하나도 없다면
+            if (_last == null)
+            {
+                _last = _tmp1;
+            }
+            _first = _tmp1;
+        }
+
+        public void AddLast(T value)
+        {
+            _tmp1 = new Node<T>(value);
+            //노드가 현재 하나이상 존재한다면
+            if (_last != null)
+            {
+                _last.Next = _tmp1;
+                _tmp1.Prev = _last;
+            }
+            //노드가 하나도 없다면
+            if (_first == null)
+            {
+                _first = _tmp1;
+            }
+            _last = _tmp1;
+
+
+        }
+
+        public void AddBefore(Node<T> node, T value)
+        {
+            _tmp1 = new Node<T>(value);
+
+            if(node.Prev!=null)
+            {
+                node.Prev.Next = _tmp1;
+                _tmp1.Prev = node.Prev;
+            }
+            else
+            {
+                _first = _tmp1;
+            }
+
+            _tmp1.Next = node;
+            node.Prev = _tmp1;
+
+        }
+
+        public void AddAfter(Node<T> node, T value)
+        {
+            _tmp1 = new Node<T>(value);
+
+            if (node.Next != null)
+            {
+                node.Next.Prev = _tmp1;
+                _tmp1.Next = node.Next;
+            }
+            else
+            {
+                _last = _tmp1;
+            }
+
+            node.Next = _tmp1;
+            _tmp1.Prev = node;
+
+        }
+
+        public Node<T> Find(T value)
+        {
+            _tmp1 = new Node<T>(_first.Value);
+
+            while (_tmp1 != null)
+            {
+                //노드가 하나 이상 존재 한다면
+                if (_first != null)
+                {
+                    if (Comparer<T>.Default.Compare(_tmp1.Value, value) == 0)
+                    {
+                        Console.WriteLine("값을 찾았습니다.");
+                        return _tmp1;
+                    }
+                    //다음 노드가 있다면
+                    else if (_first.Next != null)
+                    {
+                        _tmp1 = new Node<T>(_first.Next.Value);
+                    }
+                    else
+                    {
+                        Console.WriteLine("찾으려고 하는 값이 없습니다.");
+                        return null;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        public Node<T> FindLast(T value)
+        {
+            _tmp1 = new Node<T>(_last.Value);
+
+            while (_tmp1 != null)
+            {
+                //노드가 하나 이상 존재 한다면
+                if (Comparer<T>.Default.Compare(_tmp1.Value, value) == 0)
+                {
+                    Console.WriteLine("값을 찾았습니다.");
+                    return _tmp1;
+                }
+                //이전 노드가 있다면
+                else if (_last.Prev != null)
+                {
+                    _tmp1 = new Node<T>(_last.Prev.Value);
+                }
+                else
+                {
+                    Console.WriteLine("찾으려고 하는 값이 없습니다.");
+                    return null;
+                }
+            }
+
+            return null;
+        }
+
+        public bool Remove(T value)
+        {
+            _tmp1 = Find(value);
+            //삭제할 값을 찾았다면
+            if(_tmp1 != null)
+            {
+                _tmp1.Prev.Next = _tmp1.Next;
+                _tmp1.Next.Prev = _tmp1.Prev;
+                Console.WriteLine("삭제를 완료하였습니다.");
+                _tmp1 = null;
+            }
+            else
+            {
+                Console.WriteLine("삭제할 값을 찾지 못했습니다.");
+            }
+            return false;
+        }
+
+        public bool RemoveLast(T value)
+        {
+            _tmp1 = FindLast(value);
+            if (_tmp1 != null)
+            {
+                _tmp1.Prev.Next = _tmp1.Next;
+                _tmp1.Next.Prev = _tmp1.Prev;
+                Console.WriteLine("삭제를 완료하였습니다.");
+                _tmp1 = null;
+            }
+            else
+            {
+                Console.WriteLine("삭제할 값을 찾지 못했습니다.");
+            }
+            return false;
+        }
+    }
+
+
+
+
 }
